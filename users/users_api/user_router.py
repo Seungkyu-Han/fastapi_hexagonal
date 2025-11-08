@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.database import get_db_session
 from config.snowflake_generator import get_snowflake_generator
 from users.users_api.dto.request.create_user_request import CreateUserRequest
-from users.users_application.user_service import create_user
+from users.users_api.dto.request.login_user_request import LoginUserRequest
+from users.users_application.user_service import create_user, login
 from users.users_core.user import User
 from users.users_infra.repositories.user_repository import user_save
 
@@ -26,3 +27,14 @@ async def create_user_api(
     )
 
     await user_save(user, db)
+
+@user_router.post("/login")
+async def login_api(
+    login_user_request: LoginUserRequest,
+    db: AsyncSession = Depends(get_db_session)
+) -> str:
+    return await login(
+        email=login_user_request.email,
+        raw_password=login_user_request.password,
+        db=db
+    )

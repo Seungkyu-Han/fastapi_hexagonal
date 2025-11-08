@@ -22,5 +22,5 @@ class User:
             return True
         return False
 
-    def match_password(self, raw_password: str, match_function: Callable[[str, str], bool]) -> bool:
-        return match_function(raw_password, self.encrypted_password)
+    def match_password(self, raw_password: str, match_function: Callable[[bytes, bytes], bool]) -> bool:
+        return match_function(raw_password.encode('utf-8'), self.encrypted_password.encode('utf-8'))
