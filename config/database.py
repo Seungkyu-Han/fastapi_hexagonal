@@ -37,5 +37,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         except SQLAlchemyError as e:
             await session.rollback()
             raise e
-
-db_session = Annotated[AsyncSession, Depends(get_db_session)]
