@@ -14,5 +14,13 @@ class User:
         self.email = email
         self.encrypted_password = encrypted_password
 
+    def __hash__(self):
+        return hash(self.user_id)
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, User) and other.user_id == self.user_id:
+            return True
+        return False
+
     def match_password(self, raw_password: str, match_function: Callable[[str, str], bool]) -> bool:
         return match_function(raw_password, self.encrypted_password)
