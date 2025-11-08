@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import Depends, APIRouter
 from snowflake import SnowflakeGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +12,6 @@ from users.users_core.user import User
 from users.users_infra.repositories.user_repository import user_save
 
 user_router = APIRouter(prefix="/users", tags=["users"])
-
 
 @user_router.post("/")
 async def create_user_api(
