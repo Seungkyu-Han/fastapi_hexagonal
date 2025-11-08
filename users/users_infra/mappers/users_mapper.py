@@ -1,6 +1,6 @@
 from users.users_core.vo.email import Email
-from users.users_infra.entites.users_entity import UserEntity
-from users.users_core.users import User
+from users.users_infra.entites.user_entity import UserEntity
+from users.users_core.user import User
 
 def to_domain(user_entity: UserEntity) -> User:
     return User(
