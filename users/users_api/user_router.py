@@ -9,36 +9,35 @@ from users.users_api.dto.request.create_user_request import CreateUserRequest
 from users.users_api.dto.request.login_user_request import LoginUserRequest
 from users.users_application.user_service import create_user, login
 from users.users_core.user import User
-from users.users_infra.repositories.user_repository import user_save
+from users.users_infra import get_user_repository
+from users.users_infra.repositories.user_repository import UserRepository
 
 user_router = APIRouter(prefix="/users", tags=["users"])
 
 @user_router.post("/")
 async def create_user_api(
         create_user_request: CreateUserRequest,
+        user_repository: UserRepository = Depends(get_user_repository),
         snowflake_generator: SnowflakeGenerator = Depends(get_snowflake_generator),
-        db: AsyncSession = Depends(get_db_session),
 ) -> None:
-    user: User = await create_user(
+    await create_user(
         name=create_user_request.name,
         email=create_user_request.email,
         raw_password=create_user_request.password,
+        user_repository=user_repository,
         snowflake_generator=snowflake_generator,
-        db=db,
     )
-
-    await user_save(user, db)
 
 
 @user_router.post("/login")
 async def login_api(
         login_user_request: LoginUserRequest,
-        db: AsyncSession = Depends(get_db_session)
+        user_repository: UserRepository = Depends(get_user_repository)
 ) -> str:
     return await login(
         email=login_user_request.email,
         raw_password=login_user_request.password,
-        db=db
+        user_repository=user_repository,
     )
 
 @user_router.get("/check")

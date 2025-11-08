@@ -10,20 +10,20 @@ import jwt
 from config.transactional import transactional
 from users.users_core.user import User
 from users.users_core.vo.email import Email
-from users.users_infra.repositories.user_repository import user_save, user_find_by_email
+from users.users_infra.repositories.user_repository import UserRepository
 
 SECRET_KEY = os.getenv("JWT_SECRET")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 60))
 
 
-@transactional
+# @transactional
 async def create_user(
         name: str,
         email: str,
         raw_password: str,
+        user_repository: UserRepository,
         snowflake_generator: SnowflakeGenerator,
-        db: AsyncSession
 ) -> User:
     salt = bcrypt.gensalt()
     encrypted_password: str = bcrypt.hashpw(raw_password.encode('utf-8'), salt).decode()
@@ -34,7 +34,7 @@ async def create_user(
         encrypted_password=encrypted_password,
     )
 
-    await user_save(user, db)
+    await user_repository.user_save(user)
 
     return user
 
@@ -42,9 +42,9 @@ async def create_user(
 async def login(
         email: str,
         raw_password,
-        db: AsyncSession,
+        user_repository: UserRepository
 ) -> str:
-    user: User | None = await user_find_by_email(email=Email(email), db=db)
+    user: User | None = await user_repository.user_find_by_email(email=Email(email))
 
     if not user:
         raise Exception
