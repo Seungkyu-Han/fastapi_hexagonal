@@ -1,6 +1,7 @@
 import os
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 from snowflake import SnowflakeGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 import bcrypt
@@ -37,6 +38,7 @@ async def create_user(
 
     return user
 
+
 async def login(
         email: str,
         raw_password,
@@ -47,15 +49,15 @@ async def login(
     if not user:
         raise Exception
 
-    if not user.match_password(raw_password=raw_password,match_function=bcrypt.checkpw):
+    if not user.match_password(raw_password=raw_password, match_function=bcrypt.checkpw):
         raise Exception
 
-    expire_time = datetime.now() + timedelta(minutes=EXPIRE_MINUTES)
+    expire_time = datetime.now(tz=timezone.utc) + timedelta(minutes=EXPIRE_MINUTES)
     payload = {
         "sub": str(user.user_id),
         "email": user.email.value,
         "exp": expire_time,
-        "iat": datetime.now()
+        "iat": datetime.now(tz=timezone.utc)
     }
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
